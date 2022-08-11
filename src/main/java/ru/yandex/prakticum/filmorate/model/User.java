@@ -20,4 +20,8 @@ public class User {
     private String name;
     @NotNull
     private LocalDate birthday;
+
+    public void setNameByDefault() {
+        this.name = "common";
+    }
 }

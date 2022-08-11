@@ -13,7 +13,7 @@ import java.util.HashMap;
 @RestController
 @Slf4j
 public class UserController {
-    private final HashMap<String, User> users = new HashMap<>();
+    private final HashMap<Integer, User> users = new HashMap<>();
 
     @GetMapping("/users")
     public Collection<User> getAllUsers() {
@@ -22,6 +22,15 @@ public class UserController {
 
     @PostMapping("/users")
     public User addUser(@Valid @RequestBody User user) {
+        int id = user.getId();
+        if (id == 0) {
+            id = setIdByDefault();
+            user.setId(id);
+        } else if (id < 0) {
+            log.info("id '{}' не может быть отрицательным.", id);
+            throw new ValidationException("id не может быть отрицательным.");
+        }
+
         String login = user.getLogin();
         if (login.contains(" ")) {
             log.info("Логин '{}' не может содержать пробелы.", login);
@@ -34,9 +43,13 @@ public class UserController {
             throw new ValidationException("Дата рождения не может быть в будущем.");
         }
 
-        String email = user.getEmail();
-        if (users.get(email) == null) {
-            users.put(email, user);
+        String name = user.getName();
+        if (name.isEmpty()) {
+            user.setNameByDefault();
+        }
+
+        if (users.get(id) == null) {
+            users.put(id, user);
         } else {
             log.info("Пользователь '{}' уже существует.", user);
             throw new ValidationException("Пользователь уже существует.");
@@ -48,16 +61,23 @@ public class UserController {
 
     @PutMapping("/users")
     public User updateUser(@Valid @RequestBody User user) {
-        String email = user.getEmail();
+        int id = user.getId();
+        if (id < 0) {
+            log.info("id '{}' не может быть отрицательным.", id);
+            throw new ValidationException("id не может быть отрицательным.");
+        }
 
-        if (users.get(email) != null) {
-            users.replace(email, user);
+        if (users.get(id) != null) {
+            users.replace(id, user);
         } else {
-            log.info("Пользователь '{}' не найден.", user);
-            throw new ValidationException("Пользователь не найден.");
+            users.put(id, user);
         }
         log.info("Обновлен пользователь: '{}'", user.toString());
 
         return user;
+    }
+
+    private int setIdByDefault() {
+        return users.size() + 1;
     }
 }

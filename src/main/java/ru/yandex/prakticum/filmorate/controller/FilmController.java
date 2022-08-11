@@ -13,7 +13,7 @@ import java.util.HashMap;
 @RestController
 @Slf4j
 public class FilmController {
-    private final HashMap<String, Film> films = new HashMap<>();
+    private final HashMap<Integer, Film> films = new HashMap<>();
 
     @GetMapping("/films")
     public Collection<Film> getAllFilms() {
@@ -22,6 +22,15 @@ public class FilmController {
 
     @PostMapping("/films")
     public Film addFilm(@Valid @RequestBody Film film) {
+        int id = film.getId();
+        if (id == 0) {
+            id = setIdByDefault();
+            film.setId(id);
+        } else if (id < 0) {
+            log.info("id '{}' не может быть отрицательным.", id);
+            throw new ValidationException("id не может быть отрицательным.");
+        }
+
         String description = film.getDescription();
         if (description.length() > 200) {
             log.info("Описание фильма '{}' не может быть более 200 символов", description);
@@ -40,14 +49,12 @@ public class FilmController {
             throw new ValidationException("Продолжительность фильма не может быть меньше нуля.");
         }
 
-        String name = film.getName();
-        if (films.get(name) == null) {
-            films.put(name, film);
+        if (films.get(id) == null) {
+            films.put(id, film);
         } else {
             log.info("Фильм '{}' уже существует.", film);
             throw new ValidationException("Фильм уже существует.");
         }
-        films.put(name, film);
         log.info("Добавлен фильм: '{}'", film.toString());
 
         return film;
@@ -55,16 +62,23 @@ public class FilmController {
 
     @PutMapping("/films")
     public Film updateFilm(@Valid @RequestBody Film film) {
-        String name = film.getName();
+        int id = film.getId();
+        if (id < 0) {
+            log.info("id '{}' не может быть отрицательным.", id);
+            throw new ValidationException("id не может быть отрицательным.");
+        }
 
-        if (films.get(name) != null) {
-            films.replace(name, film);
+        if (films.get(id) != null) {
+            films.replace(id, film);
         } else {
-            log.info("Фильм '{}' не найден.", film);
-            throw new ValidationException("Фильм не найден.");
+            films.put(id, film);
         }
         log.info("Обновлен фильм: '{}'", film.toString());
 
         return film;
+    }
+
+    private int setIdByDefault() {
+        return films.size() + 1;
     }
 }
