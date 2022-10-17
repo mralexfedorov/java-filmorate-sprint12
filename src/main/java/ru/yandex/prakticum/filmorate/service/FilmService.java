@@ -1,5 +1,7 @@
 package ru.yandex.prakticum.filmorate.service;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.prakticum.filmorate.model.Film;
@@ -10,15 +12,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class FilmService {
+    @NonNull
     private InMemoryFilmStorage inMemoryFilmStorage;
+    @NonNull
     private InMemoryUserStorage inMemoryUserStorage;
-
-    public FilmService(InMemoryFilmStorage inMemoryFilmStorage, InMemoryUserStorage inMemoryUserStorage) {
-        this.inMemoryFilmStorage = inMemoryFilmStorage;
-        this.inMemoryUserStorage = inMemoryUserStorage;
-    }
 
     public void addLike(int id, int userId) {
         inMemoryFilmStorage.checkFilmNotFound(id);

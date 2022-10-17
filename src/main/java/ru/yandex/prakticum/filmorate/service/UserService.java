@@ -1,5 +1,7 @@
 package ru.yandex.prakticum.filmorate.service;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.prakticum.filmorate.model.User;
@@ -8,13 +10,11 @@ import ru.yandex.prakticum.filmorate.storage.InMemoryUserStorage;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class UserService {
+    @NonNull
     private InMemoryUserStorage inMemoryUserStorage;
-
-    public UserService(InMemoryUserStorage inMemoryUserStorage) {
-        this.inMemoryUserStorage = inMemoryUserStorage;
-    }
 
     public void addFriend(int id, int friendId) {
         inMemoryUserStorage.checkUserNotFound(id);

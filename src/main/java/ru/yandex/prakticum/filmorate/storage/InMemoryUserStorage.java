@@ -16,6 +16,7 @@ import java.util.HashSet;
 @Slf4j
 public class InMemoryUserStorage implements UserStorage{
     private HashMap<Integer, User> users = new HashMap<>();
+    private int idByDefault = 1;
 
     @Override
     public User getById(int id) {
@@ -32,16 +33,18 @@ public class InMemoryUserStorage implements UserStorage{
     public void add(User user) {
         int id = user.getId();
 
-        if (id == 0) {
-            id = setIdByDefault();
-            user.setId(id);
-        } else {
+        if (id != 0) {
             checkUserIdNotNegative(id);
             checkUserAlreadyExist(id);
         }
 
         checkUserLogin(user.getLogin());
         checkUserBirthday(user.getBirthday());
+
+        if (id == 0) {
+            id = setIdByDefault();
+            user.setId(id);
+        }
 
         setNameByDefault(user);
         user.setFriends(new HashSet<>());
@@ -66,7 +69,7 @@ public class InMemoryUserStorage implements UserStorage{
         log.info("Обновлен пользователь: '{}'", user.toString());
     }
 
-    public void checkUserAlreadyExist(int id) {
+    private void checkUserAlreadyExist(int id) {
         if (users.containsKey(id)) {
             log.info("Пользователь с id '{}' уже существует.", id);
             throw new ObjectAlreadyExistException(String.format(
@@ -86,28 +89,28 @@ public class InMemoryUserStorage implements UserStorage{
         }
     }
 
-    public void checkUserIdNotNull(int id) {
+    private void checkUserIdNotNull(int id) {
         if (id == 0) {
             log.info("id '{}' не заполнен.", id);
             throw new ValidationException("id не заполнен.");
         }
     }
 
-    public void checkUserIdNotNegative(int id) {
+    private void checkUserIdNotNegative(int id) {
         if (id < 0) {
             log.info("id '{}' не может быть отрицательным.", id);
             throw new ValidationException("id не может быть отрицательным.");
         }
     }
 
-    public void checkUserLogin(String login) {
+    private void checkUserLogin(String login) {
         if (login.contains(" ")) {
             log.info("Логин '{}' не может содержать пробелы.", login);
             throw new ValidationException("Логин не может содержать пробелы.");
         }
     }
 
-    public void checkUserBirthday(LocalDate birthday) {
+    private void checkUserBirthday(LocalDate birthday) {
         if (birthday.isAfter(java.time.LocalDate.now()) ) {
             log.info("Дата рождения '{}' не может быть в будущем.", birthday);
             throw new ValidationException("Дата рождения не может быть в будущем.");
@@ -115,7 +118,7 @@ public class InMemoryUserStorage implements UserStorage{
     }
 
     private int setIdByDefault() {
-        return users.size() + 1;
+        return idByDefault++;
     }
 
     private void setNameByDefault(User user) {

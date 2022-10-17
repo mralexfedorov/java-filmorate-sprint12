@@ -1,7 +1,7 @@
 package ru.yandex.prakticum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.prakticum.filmorate.model.User;
@@ -12,17 +12,13 @@ import javax.validation.Valid;
 import java.util.Collection;
 
 @RestController
+@RequiredArgsConstructor
 @Component
-@Slf4j
 public class UserController {
+    @NonNull
     private InMemoryUserStorage inMemoryUserStorage;
+    @NonNull
     private UserService userService;
-
-    @Autowired
-    public UserController(InMemoryUserStorage inMemoryUserStorage, UserService userService) {
-        this.inMemoryUserStorage = inMemoryUserStorage;
-        this.userService = userService;
-    }
 
     @GetMapping("/users")
     public Collection<User> getAllUsers() {

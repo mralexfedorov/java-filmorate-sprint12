@@ -16,6 +16,7 @@ import java.util.HashSet;
 @Slf4j
 public class InMemoryFilmStorage implements FilmStorage{
     private HashMap<Integer, Film> films = new HashMap<>();
+    private int idByDefault = 1;
 
     @Override
     public Film getById(int id) {
@@ -32,10 +33,7 @@ public class InMemoryFilmStorage implements FilmStorage{
     public void add(Film film) {
         int id = film.getId();
 
-        if (id == 0) {
-            id = setIdByDefault();
-            film.setId(id);
-        } else {
+        if (id != 0) {
             checkFilmIdNotNegative(id);
             checkFilmAlreadyExist(id);
         }
@@ -43,6 +41,11 @@ public class InMemoryFilmStorage implements FilmStorage{
         checkFilmReleaseDate(film.getReleaseDate());
         checkFilmDuration(film.getDuration());
         checkFilmDescription(film.getDescription());
+
+        if (id == 0) {
+            id = setIdByDefault();
+            film.setId(id);
+        }
 
         film.setLikes(new HashSet<>());
         films.put(id, film);
@@ -67,7 +70,7 @@ public class InMemoryFilmStorage implements FilmStorage{
         log.info("Обновлен фильм: '{}'", film.toString());
     }
 
-    public void checkFilmAlreadyExist(int id) {
+    private void checkFilmAlreadyExist(int id) {
         if (films.containsKey(id)) {
             log.info("Фильм с id '{}' уже существует.", id);
             throw new ObjectAlreadyExistException(String.format(
@@ -87,35 +90,35 @@ public class InMemoryFilmStorage implements FilmStorage{
         }
     }
 
-    public void checkFilmIdNotNull(int id) {
+    private void checkFilmIdNotNull(int id) {
         if (id == 0) {
             log.info("id '{}' не заполнен.", id);
             throw new ValidationException("id не заполнен.");
         }
     }
 
-    public void checkFilmIdNotNegative(int id) {
+    private void checkFilmIdNotNegative(int id) {
         if (id < 0) {
             log.info("id '{}' не может быть отрицательным.", id);
             throw new ValidationException("id не может быть отрицательным.");
         }
     }
 
-    public void checkFilmReleaseDate(LocalDate releaseDate) {
+    private void checkFilmReleaseDate(LocalDate releaseDate) {
         if (releaseDate.isBefore(LocalDate.of(1895, 12, 28))) {
             log.info("Дата релиза фильма '{}' не может быть ранее 28.12.1895г.", releaseDate);
             throw new ValidationException("Дата релиза фильма не может быть ранее 28.12.1895г.");
         }
     }
 
-    public void checkFilmDuration(int duration) {
+    private void checkFilmDuration(int duration) {
         if (duration < 0) {
             log.info("Продолжительность фильма '{}' не может быть меньше нуля.", duration);
             throw new ValidationException("Продолжительность фильма не может быть меньше нуля.");
         }
     }
 
-    public void checkFilmDescription(String description) {
+    private void checkFilmDescription(String description) {
         if (description.length() > 200) {
             log.info("Описание фильма '{}' не может быть более 200 символов", description);
             throw new ValidationException("Описание фильма не может быть более 200 символов.");
@@ -123,6 +126,6 @@ public class InMemoryFilmStorage implements FilmStorage{
     }
 
     private int setIdByDefault() {
-        return films.size() + 1;
+        return idByDefault++;
     }
 }

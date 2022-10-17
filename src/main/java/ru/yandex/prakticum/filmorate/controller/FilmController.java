@@ -1,7 +1,7 @@
 package ru.yandex.prakticum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.prakticum.filmorate.model.Film;
@@ -12,17 +12,13 @@ import javax.validation.Valid;
 import java.util.Collection;
 
 @RestController
+@RequiredArgsConstructor
 @Component
-@Slf4j
 public class FilmController {
+    @NonNull
     private InMemoryFilmStorage inMemoryFilmStorage;
+    @NonNull
     private FilmService filmService;
-
-    @Autowired
-    public FilmController(InMemoryFilmStorage inMemoryFilmStorage, FilmService filmService) {
-        this.inMemoryFilmStorage = inMemoryFilmStorage;
-        this.filmService = filmService;
-    }
 
     @GetMapping("/films")
     public Collection<Film> getAllFilms() {
