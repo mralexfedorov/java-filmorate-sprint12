@@ -1,83 +1,64 @@
 package ru.yandex.prakticum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.prakticum.filmorate.exception.ValidationException;
 import ru.yandex.prakticum.filmorate.model.User;
+import ru.yandex.prakticum.filmorate.service.UserService;
+import ru.yandex.prakticum.filmorate.storage.InMemoryUserStorage;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
 
 @RestController
-@Slf4j
+@RequiredArgsConstructor
+@Component
 public class UserController {
-    private final HashMap<Integer, User> users = new HashMap<>();
+    @NonNull
+    private InMemoryUserStorage inMemoryUserStorage;
+    @NonNull
+    private UserService userService;
 
     @GetMapping("/users")
     public Collection<User> getAllUsers() {
-        return users.values();
+        return inMemoryUserStorage.getAll();
+    }
+
+    @GetMapping("/users/{id}")
+    public User getUserById(@PathVariable int id) {
+        return inMemoryUserStorage.getById(id);
     }
 
     @PostMapping("/users")
     public User addUser(@Valid @RequestBody User user) {
-        int id = user.getId();
-        if (id == 0) {
-            id = setIdByDefault();
-            user.setId(id);
-        } else if (id < 0) {
-            log.info("id '{}' не может быть отрицательным.", id);
-            throw new ValidationException("id не может быть отрицательным.");
-        }
-
-        String login = user.getLogin();
-        if (login.contains(" ")) {
-            log.info("Логин '{}' не может содержать пробелы.", login);
-            throw new ValidationException("Логин не может содержать пробелы.");
-        }
-
-        LocalDate birthday = user.getBirthday();
-        if (birthday.isAfter(java.time.LocalDate.now()) ) {
-            log.info("Дата рождения '{}' не может быть в будущем.", birthday);
-            throw new ValidationException("Дата рождения не может быть в будущем.");
-        }
-
-        String name = user.getName();
-        if (name.isEmpty()) {
-            user.setNameByDefault();
-        }
-
-        if (users.get(id) == null) {
-            users.put(id, user);
-        } else {
-            log.info("Пользователь '{}' уже существует.", user);
-            throw new ValidationException("Пользователь уже существует.");
-        }
-        log.info("Добавлен пользователь: '{}'", user.toString());
-
+        inMemoryUserStorage.add(user);
         return user;
     }
 
     @PutMapping("/users")
     public User updateUser(@Valid @RequestBody User user) {
-        int id = user.getId();
-        if (id < 0) {
-            log.info("id '{}' не может быть отрицательным.", id);
-            throw new ValidationException("id не может быть отрицательным.");
-        }
-
-        if (users.get(id) != null) {
-            users.replace(id, user);
-        } else {
-            users.put(id, user);
-        }
-        log.info("Обновлен пользователь: '{}'", user.toString());
-
+        inMemoryUserStorage.update(user);
         return user;
     }
 
-    private int setIdByDefault() {
-        return users.size() + 1;
+    @PutMapping("/users/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable int id, @PathVariable int friendId) {
+        userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/users/{id}/friends/{friendId}")
+    public void deleteFriend(@PathVariable int id, @PathVariable int friendId) {
+        userService.deleteFriend(id, friendId);
+    }
+
+    @GetMapping("/users/{id}/friends")
+    public Collection<User> getUserFriends(@PathVariable int id) {
+        return userService.getUserFriends(id);
+    }
+
+    @GetMapping("/users/{id}/friends/common/{otherId}")
+    public Collection<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
+        return userService.getCommonFriends(id, otherId);
     }
 }
