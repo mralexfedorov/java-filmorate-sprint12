@@ -2,43 +2,45 @@ package ru.yandex.prakticum.filmorate.controller;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.prakticum.filmorate.model.User;
 import ru.yandex.prakticum.filmorate.service.UserService;
-import ru.yandex.prakticum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.prakticum.filmorate.storage.UserStorage;
 
 import javax.validation.Valid;
 import java.util.Collection;
 
 @RestController
-@RequiredArgsConstructor
+@RequiredArgsConstructor()
 @Component
 public class UserController {
     @NonNull
-    private InMemoryUserStorage inMemoryUserStorage;
+    @Qualifier("userDbStorage")
+    private UserStorage userStorage;
     @NonNull
     private UserService userService;
 
     @GetMapping("/users")
     public Collection<User> getAllUsers() {
-        return inMemoryUserStorage.getAll();
+        return userStorage.getAll();
     }
 
     @GetMapping("/users/{id}")
     public User getUserById(@PathVariable int id) {
-        return inMemoryUserStorage.getById(id);
+        return userStorage.getById(id);
     }
 
     @PostMapping("/users")
     public User addUser(@Valid @RequestBody User user) {
-        inMemoryUserStorage.add(user);
+        userStorage.add(user);
         return user;
     }
 
     @PutMapping("/users")
     public User updateUser(@Valid @RequestBody User user) {
-        inMemoryUserStorage.update(user);
+        userStorage.update(user);
         return user;
     }
 

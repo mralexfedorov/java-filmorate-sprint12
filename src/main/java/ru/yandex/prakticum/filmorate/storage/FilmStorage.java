@@ -11,5 +11,7 @@ public interface FilmStorage {
 
     void add(Film user);
 
-    void update(Film user);
+    Film update(Film user);
+
+    void checkFilmNotFound(int id);
 }

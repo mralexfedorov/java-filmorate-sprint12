@@ -53,7 +53,7 @@ public class InMemoryFilmStorage implements FilmStorage{
     }
 
     @Override
-    public void update(Film film) {
+    public Film update(Film film) {
         int id = film.getId();
 
         checkFilmIdNotNull(id);
@@ -68,6 +68,8 @@ public class InMemoryFilmStorage implements FilmStorage{
         film.setLikes(updatedFilm.getLikes());
         films.replace(id, film);
         log.info("Обновлен фильм: '{}'", film.toString());
+
+        return film;
     }
 
     private void checkFilmAlreadyExist(int id) {
@@ -80,6 +82,7 @@ public class InMemoryFilmStorage implements FilmStorage{
         }
     }
 
+    @Override
     public void checkFilmNotFound(int id) {
         if (!films.containsKey(id)) {
             log.info("Фильм с id '{}' не найден.", id);

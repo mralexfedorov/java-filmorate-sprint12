@@ -13,4 +13,6 @@ public interface UserStorage {
     void add(User user);
 
     void update(User user);
+
+    void checkUserNotFound(int id);
 }

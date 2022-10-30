@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
-@Component
+@Component("inMemoryUserStorage")
 @Slf4j
 public class InMemoryUserStorage implements UserStorage{
     private HashMap<Integer, User> users = new HashMap<>();
@@ -79,6 +79,7 @@ public class InMemoryUserStorage implements UserStorage{
         }
     }
 
+    @Override
     public void checkUserNotFound(int id) {
         if (!users.containsKey(id)) {
             log.info("Пользователь с id '{}' не найден.", id);
