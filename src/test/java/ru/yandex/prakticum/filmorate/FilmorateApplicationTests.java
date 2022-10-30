@@ -24,13 +24,6 @@ class FilmoRateApplicationTests {
 	@Test
 	public void testFindUserById() {
 
-		userStorage.add(User.builder()
-				.email("test@test.com")
-				.login("login")
-				.name("name")
-				.birthday(LocalDate.now())
-				.build());
-
 		Optional<User> userOptional = Optional.of(userStorage.getById(1));
 
 		assertThat(userOptional)
