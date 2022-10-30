@@ -1,14 +1,14 @@
 # java-filmorate
 ## er-diagramm by dbdiagram.io
-![filmorate](https://user-images.githubusercontent.com/95481854/196049841-952ec43a-cb9c-4f83-88d9-b3d78becfcc4.png)
+
 
 ## description by dbdiagram.io
 ```
 Table public.users {
   user_id int [pk, increment]
-  email varchar [not null]
-  login varchar [not null]
-  name varchar [default: 'common']
+  email varchar(255) [not null]
+  login varchar(255) [not null]
+  name varchar(255) [default: 'common']
   birthday date [not null]
   
   Indexes {
@@ -19,7 +19,6 @@ Table public.users {
 Table public.user_friends {
   user_id int [ref: <> users.user_id]
   friend_id int [ref: <> users.user_id]
-  friendship_status friendship_status
   
   Indexes {
     (user_id, friend_id) [pk]
@@ -32,13 +31,21 @@ Table public.films {
   description varchar [not null]
   release_date date [not null]
   duration int [not null]
-  genre_id int [ref: > genres.genre_id]
-  rating_id varchar [ref: > ratings.rating_id]
+  rate int [not null]
+  mpa_id varchar [ref: > mpa.id]
   
   Indexes {
     (film_id) [pk]
-    (genre_id)
-    (rating_id)
+    (mpa_id)
+  }
+}
+
+Table public.film_genres {
+  film_id int [ref: > films.film_id]
+  genre_id int [ref: > genres.id]
+  
+  Indexes {
+    (film_id, genre_id) [pk]
   }
 }
 
@@ -52,25 +59,21 @@ Table public.film_likes {
 }
 
 Table public.genres {
-  genre_id int [pk, increment]
-  name varchar [not null]
+  id int [pk, increment]
+  name varchar(255)
   
   Indexes {
-    (genre_id) [pk]
+    (id) [pk]
   }
 }
 
-Table public.ratings {
-  rating_id varchar [pk]
-  description varchar [not null]
+Table public.mpa {
+  id int [pk, increment]
+  name varchar(255)
+  description varchar(255)
   
   Indexes {
-    (rating_id) [pk]
+    (id) [pk]
   }  
-}
-
-Enum public.friendship_status {
-  confirmed
-  unconfirmed
 }
 ```
