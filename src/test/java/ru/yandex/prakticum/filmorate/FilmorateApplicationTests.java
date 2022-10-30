@@ -54,35 +54,35 @@ class FilmoRateApplicationTests {
 	@Test
 	public void testFindUserById() {
 
-//		userStorage.add(USER);
-//
-//		Optional<User> userOptional = Optional.of(userStorage.getById(USER_ID));
-//
-//		assertThat(userOptional)
-//				.isPresent()
-//				.hasValueSatisfying(user ->
-//						assertThat(user).hasFieldOrPropertyWithValue("id", USER_ID)
-//				);
-//
-//		USER.setName(FRIEND_NAME);
-//		userStorage.update(USER);
-//
-//		userOptional = Optional.of(userStorage.getById(USER_ID));
-//
-//		assertThat(userOptional)
-//				.isPresent()
-//				.hasValueSatisfying(user ->
-//						assertThat(user).hasFieldOrPropertyWithValue("name", FRIEND_NAME)
-//				);
-//
-//		userStorage.add(FRIEND);
-//
-//		Optional<User> friendOptional = Optional.of(userStorage.getById(FRIEND_ID));
-//
-//		assertThat(friendOptional)
-//				.isPresent()
-//				.hasValueSatisfying(user ->
-//						assertThat(user).hasFieldOrPropertyWithValue("id", FRIEND_ID)
-//				);
+		userStorage.add(USER);
+
+		Optional<User> userOptional = Optional.of(userStorage.getById(USER_ID));
+
+		assertThat(userOptional)
+				.isPresent()
+				.hasValueSatisfying(user ->
+						assertThat(user).hasFieldOrPropertyWithValue("id", USER_ID)
+				);
+
+		USER.setName(FRIEND_NAME);
+		userStorage.update(USER);
+
+		userOptional = Optional.of(userStorage.getById(USER_ID));
+
+		assertThat(userOptional)
+				.isPresent()
+				.hasValueSatisfying(user ->
+						assertThat(user).hasFieldOrPropertyWithValue("name", FRIEND_NAME)
+				);
+
+		userStorage.add(FRIEND);
+
+		Optional<User> friendOptional = Optional.of(userStorage.getById(FRIEND_ID));
+
+		assertThat(friendOptional)
+				.isPresent()
+				.hasValueSatisfying(user ->
+						assertThat(user).hasFieldOrPropertyWithValue("id", FRIEND_ID)
+				);
 	}
 }
