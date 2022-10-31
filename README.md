@@ -1,6 +1,6 @@
 # java-filmorate
 ## er-diagramm by dbdiagram.io
-![filmorate](https://user-images.githubusercontent.com/95481854/198903998-c5b6acb4-1bca-4e52-bf55-41eb9d4b5d32.png)
+![filmorate](https://user-images.githubusercontent.com/95481854/199124395-0a8792fb-9a40-48a9-ab76-0566625ce156.png)
 
 ## description by dbdiagram.io
 ```
@@ -32,7 +32,7 @@ Table public.films {
   release_date date [not null]
   duration int [not null]
   rate int [not null]
-  mpa_id varchar [ref: > mpa.id]
+  mpa_id int [ref: > mpa.id]
   
   Indexes {
     (film_id) [pk]
