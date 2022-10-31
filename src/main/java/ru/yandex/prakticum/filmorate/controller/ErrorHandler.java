@@ -1,5 +1,6 @@
 package ru.yandex.prakticum.filmorate.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -10,11 +11,13 @@ import ru.yandex.prakticum.filmorate.exception.ValidationException;
 import ru.yandex.prakticum.filmorate.model.ErrorResponse;
 
 @RestControllerAdvice
+@Slf4j
 public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(final ValidationException e) {
+        log.info(e.getMessage());
         return new ErrorResponse(
                 e.getMessage()
         );
@@ -23,6 +26,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleObjectNotFoundException(final ObjectNotFoundException e) {
+        log.info(e.getMessage());
         return new ErrorResponse(
                 e.getMessage()
         );
@@ -31,6 +35,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleObjectAlreadyExistException(final ObjectAlreadyExistException e) {
+        log.info(e.getMessage());
         return new ErrorResponse(
                 e.getMessage()
         );
@@ -39,6 +44,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleThrowable(final Throwable e) {
+        log.info(e.getMessage());
         return new ErrorResponse(
                 e.getMessage()
         );

@@ -30,6 +30,11 @@ public class InMemoryFilmStorage implements FilmStorage{
     }
 
     @Override
+    public Collection<Film> getMostPopularFilms(int count) {
+        return null;
+    }
+
+    @Override
     public void add(Film film) {
         int id = film.getId();
 

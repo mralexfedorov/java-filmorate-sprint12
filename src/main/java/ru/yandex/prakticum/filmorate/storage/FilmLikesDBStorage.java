@@ -1,7 +1,6 @@
 package ru.yandex.prakticum.filmorate.storage;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
 import java.sql.PreparedStatement;
@@ -28,17 +27,5 @@ public class FilmLikesDBStorage {
 
     public void delete(int film_id, int user_id) {
         jdbcTemplate.update("delete from film_likes where film_id = ? and user_id = ?", film_id, user_id);
-    }
-
-    public int getFilmPopularity(int filmId) {
-        final String sqlQuery = "select count(*) as q from film_likes where film_id = ?";
-        int likesCount = 0;
-
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sqlQuery, filmId);
-        if(filmRows.next()) {
-            likesCount = filmRows.getInt("q");
-        }
-
-        return likesCount;
     }
 }

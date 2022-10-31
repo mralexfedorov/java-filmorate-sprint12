@@ -17,6 +17,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
@@ -72,6 +73,48 @@ public class FilmDbStorage implements FilmStorage{
         final String sqlQuery = "select * from films";
 
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapRowToFilm(rs, rowNum));
+    }
+
+    @Override
+    public Collection<Film> getMostPopularFilms(int count) {
+        final Collection<Film> mostPopularFilms = new ArrayList<>();
+        final String sqlQuery = "select f.film_id, f.name, f.description, f.release_date, " +
+                "f.duration, f.rate, f.mpa_id, " +
+                "case " +
+                "when fl.q is null then 0 " +
+                "else fl.q " +
+                "end as qf " +
+                "from films f " +
+                "left join (select film_id, count(user_id) as q " +
+                "from film_likes " +
+                "group by film_id) fl " +
+                "on f.film_id = fl.film_id " +
+                "order by qf desc " +
+                "limit ? ";
+
+        SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sqlQuery, count);
+
+        while(filmRows.next()) {
+            Film film = Film.builder()
+                    .id(filmRows.getInt("film_id"))
+                    .name(filmRows.getString("name"))
+                    .description(filmRows.getString("description"))
+                    .releaseDate(filmRows.getDate("release_date").toLocalDate())
+                    .duration(filmRows.getInt("duration"))
+                    .rate(filmRows.getInt("rate"))
+                    .mpa(mpaDBStorage.getById(filmRows.getInt("mpa_id")))
+                    .build();
+
+            Set<Genre> filmGenres= genreDBStorage.getFilmGenres(filmRows.getInt("film_id"));
+
+            for (Genre genre: filmGenres) {
+                film.addGenre(genre);
+            }
+
+            mostPopularFilms.add(film);
+        }
+
+        return mostPopularFilms;
     }
 
     @Override

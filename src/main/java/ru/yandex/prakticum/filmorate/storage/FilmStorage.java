@@ -9,6 +9,8 @@ public interface FilmStorage {
 
     Collection<Film> getAll();
 
+    Collection<Film> getMostPopularFilms(int count);
+
     void add(Film user);
 
     Film update(Film user);

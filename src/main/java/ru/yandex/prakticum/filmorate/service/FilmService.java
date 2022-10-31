@@ -11,7 +11,6 @@ import ru.yandex.prakticum.filmorate.model.Mpa;
 import ru.yandex.prakticum.filmorate.storage.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -49,14 +48,7 @@ public class FilmService {
     }
 
     public Collection<Film> getMostPopularFilms(int count) {
-        Map<Film, Integer> sortedByLikesFilms = new HashMap<>();
-        for (Film film: filmStorage.getAll()) {
-            sortedByLikesFilms.put(film, filmLikesDBStorage.getFilmPopularity(film.getId()));
-        }
-
-        return sortedByLikesFilms.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).
-                limit(count).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1,
-                        LinkedHashMap::new)).keySet();
+        return filmStorage.getMostPopularFilms(count);
     }
 
     public Collection<Genre> getGenres() {

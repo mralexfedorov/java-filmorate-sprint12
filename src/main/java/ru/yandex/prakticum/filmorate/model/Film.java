@@ -2,13 +2,11 @@ package ru.yandex.prakticum.filmorate.model;
 
 import lombok.Builder;
 import lombok.Data;
-import org.apache.logging.log4j.util.PropertySource;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Data
 @Builder
