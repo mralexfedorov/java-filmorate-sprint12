@@ -3,9 +3,11 @@ package ru.yandex.prakticum.filmorate.service;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.prakticum.filmorate.model.User;
-import ru.yandex.prakticum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.prakticum.filmorate.storage.FriendsDBStorage;
+import ru.yandex.prakticum.filmorate.storage.UserStorage;
 
 import java.util.*;
 
@@ -14,59 +16,54 @@ import java.util.*;
 @Slf4j
 public class UserService {
     @NonNull
-    private InMemoryUserStorage inMemoryUserStorage;
+    @Qualifier("userDbStorage")
+    private UserStorage userStorage;
+    @NonNull
+    private FriendsDBStorage friendsDBStorage;
 
     public void addFriend(int id, int friendId) {
-        inMemoryUserStorage.checkUserNotFound(id);
-        inMemoryUserStorage.checkUserNotFound(friendId);
+        userStorage.checkUserNotFound(id);
+        userStorage.checkUserNotFound(friendId);
 
-        User user  = inMemoryUserStorage.getById(id);
-        User friend  = inMemoryUserStorage.getById(friendId);
-        user.addFriend(friendId);
-        friend.addFriend(id);
-        inMemoryUserStorage.update(user);
-        inMemoryUserStorage.update(friend);
+        friendsDBStorage.add(id, friendId);
 
         log.info("У пользователя с id: '{}' появился друг c id: '{}'", id, friendId);
     }
 
     public void deleteFriend(int id, int friendId) {
-        inMemoryUserStorage.checkUserNotFound(id);
-        inMemoryUserStorage.checkUserNotFound(friendId);
+        userStorage.checkUserNotFound(id);
+        userStorage.checkUserNotFound(friendId);
 
-        User user  = inMemoryUserStorage.getById(id);
-        User friend  = inMemoryUserStorage.getById(friendId);
-        user.deleteFriend(friendId);
-        friend.deleteFriend(id);
-        inMemoryUserStorage.update(user);
-        inMemoryUserStorage.update(friend);
+        friendsDBStorage.delete(id, friendId);
+        friendsDBStorage.delete(friendId, id);
 
         log.info("Пользователь с id: '{}' отписался от пользователя с id: '{}'", friendId, id);
     }
 
     public Collection<User> getUserFriends(int id) {
-        inMemoryUserStorage.checkUserNotFound(id);
+        userStorage.checkUserNotFound(id);
 
-        Set<Integer> userFriendsIds = inMemoryUserStorage.getById(id).getFriends();
+        List<Integer> userFriendsIds = friendsDBStorage.getUserFriendsIds(id);
         List<User> userFriends = new ArrayList<>();
 
         for (Integer userId: userFriendsIds) {
-            userFriends.add(inMemoryUserStorage.getById(userId));
+            userFriends.add(userStorage.getById(userId));
         }
         return userFriends;
     }
 
     public Collection<User> getCommonFriends(int id, int otherId) {
-        inMemoryUserStorage.checkUserNotFound(id);
-        inMemoryUserStorage.checkUserNotFound(otherId);
+        userStorage.checkUserNotFound(id);
+        userStorage.checkUserNotFound(otherId);
 
-        Set<Integer> userFriends = inMemoryUserStorage.getById(id).getFriends();
-        Set<Integer> otherUserFriends = inMemoryUserStorage.getById(otherId).getFriends();
+        List<Integer> userFriendsIds = friendsDBStorage.getUserFriendsIds(id);
+        List<Integer> otherUserFriendsIds = friendsDBStorage.getUserFriendsIds(otherId);
+
         List<User> commonUsers = new ArrayList<>();
 
-        for (int friendId: userFriends) {
-            if (otherUserFriends.contains(friendId)) {
-                commonUsers.add(inMemoryUserStorage.getById(friendId));
+        for (int friendId: userFriendsIds) {
+            if (otherUserFriendsIds.contains(friendId)) {
+                commonUsers.add(userStorage.getById(friendId));
             }
         }
 

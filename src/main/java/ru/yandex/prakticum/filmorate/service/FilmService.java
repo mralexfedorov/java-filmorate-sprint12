@@ -3,53 +3,67 @@ package ru.yandex.prakticum.filmorate.service;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.prakticum.filmorate.model.Film;
-import ru.yandex.prakticum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.prakticum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.prakticum.filmorate.model.Genre;
+import ru.yandex.prakticum.filmorate.model.Mpa;
+import ru.yandex.prakticum.filmorate.storage.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class FilmService {
     @NonNull
-    private InMemoryFilmStorage inMemoryFilmStorage;
+    @Qualifier("filmDbStorage")
+    private FilmStorage filmStorage;
     @NonNull
-    private InMemoryUserStorage inMemoryUserStorage;
+    @Qualifier("userDbStorage")
+    private UserStorage userStorage;
+    @NonNull
+    private FilmLikesDBStorage filmLikesDBStorage;
+    @NonNull
+    private GenreDBStorage genreDBStorage;
+    @NonNull
+    private MpaDBStorage mpaDBStorage;
 
     public void addLike(int id, int userId) {
-        inMemoryFilmStorage.checkFilmNotFound(id);
-        inMemoryUserStorage.checkUserNotFound(userId);
+        filmStorage.checkFilmNotFound(id);
+        userStorage.checkUserNotFound(userId);
 
-        Film film = inMemoryFilmStorage.getById(id);
-        film.addLike(userId);
-        inMemoryFilmStorage.update(film);
+        filmLikesDBStorage.add(id, userId);
 
         log.info("Пользовать с id: '{}' поставил лайк фильму c id: '{}'",userId , id);
     }
 
     public void deleteLike(int id, int userId) {
-        inMemoryFilmStorage.checkFilmNotFound(id);
-        inMemoryUserStorage.checkUserNotFound(userId);
+        filmStorage.checkFilmNotFound(id);
+        userStorage.checkUserNotFound(userId);
 
-        Film film = inMemoryFilmStorage.getById(id);
-        film.deleteLike(userId);
-        inMemoryFilmStorage.update(film);
+        filmLikesDBStorage.delete(id, userId);
 
         log.info("Пользовать с id: '{}' удалил лайк фильму c id: '{}'",userId , id);
     }
 
     public Collection<Film> getMostPopularFilms(int count) {
-        Map<Film, Integer> sortedByLikesFilms = new HashMap<>();
-        for (Film film: inMemoryFilmStorage.getAll()) {
-            sortedByLikesFilms.put(film, film.getLikes().size());
-        }
+        return filmStorage.getMostPopularFilms(count);
+    }
 
-        return sortedByLikesFilms.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).
-                limit(count).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1,
-                        LinkedHashMap::new)).keySet();
+    public Collection<Genre> getGenres() {
+        return genreDBStorage.getAll();
+    }
+
+    public Genre getGenreById(int id) {
+        return genreDBStorage.getById(id);
+    }
+
+    public Collection<Mpa> getMpa() {
+        return mpaDBStorage.getAll();
+    }
+
+    public Mpa getMpaById(int id) {
+        return mpaDBStorage.getById(id);
     }
 }

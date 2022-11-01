@@ -6,7 +6,7 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @Builder
@@ -21,6 +21,12 @@ public class Film {
     private LocalDate releaseDate;
     @NotNull
     private int duration;
+    @NotNull
+    private int rate;
+    @NotNull
+    private Mpa mpa;
+    @NotNull
+    private final Set<Genre> genres = new TreeSet<>(Comparator.comparingInt(Genre::getId));
 
     private Set<Integer> likes;
 
@@ -34,5 +40,9 @@ public class Film {
 
     public void deleteLike(int id) {
         likes.remove(id);
+    }
+
+    public void addGenre(Genre genre) {
+        genres.add(genre);
     }
 }
